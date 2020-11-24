@@ -7,11 +7,11 @@ import sys
 
 #---------------------------------------------------
 rc = 0
-nleitores = 3
-nescritores = 1
+nflorestaalta = 5
+ngranderio = 1
 
 #---------------------------------------------------
-def leitor(tid, db, mutex):
+def florestaalta(tid, p, mutex):
     global rc
 
     while True:
@@ -19,55 +19,50 @@ def leitor(tid, db, mutex):
         mutex.acquire()
         rc = rc + 1
         if rc == 1:
-            db.acquire()
+            p.acquire()
         mutex.release()
 
-        print('Leitor: %d acessou a base' % tid)
-        sleep(5)
-
-        print('Leitor %d liberou a base' % tid)
+        print('Viajante Floresta Alta %d atravessou a ponte' % tid)
 
         mutex.acquire()
         rc = rc - 1
         if rc == 0:
-            db.release()
+            p.release()
         mutex.release()
 
         sleep(5)
     
 #---------------------------------------------------
-def escritor(tid, db):
+def granderio(tid, p):
    
      while True:
-        db.acquire()
-        print('Escritor %d acessou a base' % tid)
-        sleep(5)
-        print('Escritor %d liberou a base' % tid)
-        db.release()
+        p.acquire()
+        print('Viajante Grande Rio %d atravessou a ponte' % tid)
+        p.release()
         sleep(5)
         
 #---------------------------------------------------
 
-db = Semaphore(1)
+p = Semaphore(1)
 mutex = Semaphore(1)
 
 l = []
-for i in range(nleitores):
-    tl = Thread(target=leitor, args=[i, db, mutex])
-    l.append(tl)    
-    tl.start()
+for i in range(nflorestaalta):
+    tf = Thread(target=florestaalta, args=[i, p, mutex])
+    l.append(tf)    
+    tf.start()
 
 e = []
-for i in range(nescritores):
-    te = Thread(target=escritor, args=[i, db])
-    l.append(te)
-    te.start()
+for i in range(ngranderio):
+    tg = Thread(target=granderio, args=[i, p])
+    l.append(tg)
+    tg.start()
 
-for tl in l:
-    tl.join()
+for tf in l:
+    tf.join()
 
-for te in e:
-    te.join()
+for tg in e:
+    tg.join()
 
 
 
